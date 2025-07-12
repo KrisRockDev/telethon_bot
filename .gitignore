@@ -28,3 +28,6 @@ dist/
 downloads/
 
 *~
+
+# Файлы сессий Telethon
+*.session
