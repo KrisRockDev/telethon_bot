@@ -1,7 +1,46 @@
-users.txt
+# Игнорировать Docker-файлы
+Dockerfile
+docker-compose.yml
 
-films_list.txt
+# Игнорировать файлы виртуального окружения
+venv/
+.venv/
+.env
 
+# Кэш и временные файлы
+__pycache__/
+*.py[cod]
+*.pyo
+*.log
+
+# Игнорировать IDE/редакторы
+.idea/
+.vscode/
+
+# Игнорировать файлы базы данных
+*.sqlite3
+
+# Игнорировать конфигурационные файлы
+config.yaml
+settings.json
+
+# Игнорировать выходные файлы (например, скомпилированные)
+build/
+dist/
+*.egg-info/
+
+# Файлы сессий Telethon
+*.session
+
+# Резервные копии и документация
+*~
+info.md
+prompt.md
 description.md
+prompt_finish.txt
+prompt_start.txt
 
+# Данные проекта
+users.txt
+films_list.txt
 downloads/

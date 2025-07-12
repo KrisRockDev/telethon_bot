@@ -27,7 +27,13 @@ dist/
 
 downloads/
 
-*~
-
 # Файлы сессий Telethon
 *.session
+
+# Резервные копии и документация
+*~
+info.md
+prompt.md
+description.md
+prompt_finish.txt
+prompt_start.txt
