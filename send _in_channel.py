@@ -3,6 +3,7 @@ import asyncio
 from dotenv import load_dotenv
 from telethon import TelegramClient
 from telethon.errors import rpcerrorlist
+from telethon.tl.types import PeerChannel
 
 load_dotenv()
 
@@ -35,8 +36,6 @@ client = TelegramClient(session_name, int(api_id), api_hash)
 async def main():
     try:
         # --- 3. Получаем "сущность" (entity) для канала ---
-        # Для группы это делать не обязательно, т.к. мы будем отвечать на пост из канала,
-        # но для надежности можно получить и ее.
         print(f"\nПопытка найти сущность для канала ID: {CHANNEL_ID}...")
         channel_entity = await client.get_entity(CHANNEL_ID)
         print("Сущность канала успешно найдена!")
@@ -49,19 +48,39 @@ async def main():
         )
         print(f"Пост успешно отправлен в канал. ID сообщения: {channel_post.id}")
 
-        # Небольшая пауза для наглядности
-        await asyncio.sleep(0.1)
+        # --- 5. ИСПРАВЛЕНИЕ: Находим пост в группе обсуждений ---
+        # Чтобы оставить комментарий именно к новому посту, нужно сначала дождаться,
+        # когда Телеграм автоматически перешлет его из канала в связанную группу.
+        # Затем мы находим это пересланное сообщение в группе и отвечаем уже на него.
+        print("\nОжидание пересылки поста в группу для комментариев (5 секунд)...")
+        await asyncio.sleep(5)
 
-        # --- 5. КЛЮЧЕВОЙ МОМЕНТ: Отправляем комментарий ---
-        # Мы отправляем сообщение в группу обсуждений, указывая,
-        # на какое сообщение из канала нужно ответить.
-        print("\nОтправка комментария к посту...")
-        comment = await client.send_message(
-            entity=GRUP_ID,  # Отправляем именно в группу
-            message='А это мой первый комментарий под постом!',
-            reply_to=channel_post.id  # Указываем ID поста в канале
-        )
-        print(f"Комментарий успешно отправлен! ID комментария: {comment.id}")
+        discussion_post_id = None
+        # Ищем в последних сообщениях группы нужное нам
+        async for message in client.iter_messages(GRUP_ID, limit=10):
+            # Проверяем, является ли сообщение пересланным из нашего канала
+            # и совпадает ли ID оригинального поста
+            if message.fwd_from and \
+                    isinstance(message.fwd_from.from_id, PeerChannel) and \
+                    message.fwd_from.from_id.channel_id == channel_entity.id and \
+                    message.fwd_from.channel_post == channel_post.id:
+                discussion_post_id = message.id  # Нам нужен ID этого сообщения в ГРУППЕ
+                print(f"Найден соответствующий пост в группе. ID в группе: {discussion_post_id}")
+                break
+
+        # --- 6. Отправляем комментарий, если пост найден ---
+        if discussion_post_id:
+            print("\nОтправка комментария к посту...")
+            comment = await client.send_message(
+                entity=GRUP_ID,  # Отправляем именно в группу
+                message='А это мой первый комментарий под постом!',
+                reply_to=discussion_post_id  # Указываем ID поста в ГРУППЕ
+            )
+            print(f"Комментарий успешно отправлен! ID комментария: {comment.id}")
+        else:
+            print("\nОШИБКА: Не удалось найти пересланный пост в группе обсуждений.")
+            print(
+                "Комментарий не был отправлен. Увеличьте время ожидания в 'asyncio.sleep()' или проверьте связь канала и группы.")
 
 
     except rpcerrorlist.PeerIdInvalidError:
