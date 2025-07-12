@@ -1,0 +1,36 @@
+[project]
+name = "telethon-bot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiofiles>=23.2.1",
+    "aiogram>=3.20.0.post0",
+    "aiohttp>=3.11.18",
+    "aiosqlite>=0.21.0",
+    "asyncpg>=0.30.0",
+    "beautifulsoup4>=4.13.4",
+    "boltons>=25.0.0",
+    "desktop-notifier>=6.1.1",
+    "hotpdf>=0.5.2",
+    "icecream>=2.1.5",
+    "jurigged>=0.6.1",
+    "logging>=0.4.9.6",
+    "loguru>=0.7.3",
+    "orjson>=3.10.18",
+    "pdfkit>=1.0.0",
+    "pillow>=11.3.0",
+    "playwright>=1.53.0",
+    "pydoll-python>=2.3.0",
+    "python-dotenv>=1.1.1",
+    "requests>=2.32.4",
+    "setuptools>=80.9.0",
+    "simplejson>=3.20.1",
+    "sqlalchemy>=2.0.41",
+    "telethon>=1.40.0",
+    "tqdm>=4.67.1",
+    "ujson>=5.10.0",
+    "urllib3>=2.5.0",
+    "wheel>=0.45.1",
+]
