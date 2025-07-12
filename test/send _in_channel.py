@@ -24,21 +24,20 @@ if not all([api_id, api_hash, session_name, raw_channel_id, raw_grup_id]):
 try:
     CHANNEL_ID = int(raw_channel_id)
     GRUP_ID = int(raw_grup_id)
-    print(f'Используем CHANNEL_ID: {CHANNEL_ID}')
-    print(f'Используем GRUP_ID (для комментариев): {GRUP_ID}')
+    print(f'ID Канала: {CHANNEL_ID}')
+    print(f'ID Группы: {GRUP_ID}')
 except (ValueError, TypeError):
     raise TypeError("CHANNEL_ID и GRUP_ID в .env файле должны быть числами (например, -100123456789)")
 
 # Создаем клиент
 client = TelegramClient(session_name, int(api_id), api_hash)
 
-
 async def main():
     try:
         # --- 3. Получаем "сущность" (entity) для канала ---
-        print(f"\nПопытка найти сущность для канала ID: {CHANNEL_ID}...")
+        # print(f"\nПопытка найти сущность для канала ID: {CHANNEL_ID}...")
         channel_entity = await client.get_entity(CHANNEL_ID)
-        print("Сущность канала успешно найдена!")
+        # print("Сущность канала успешно найдена!")
 
         # --- 4. Отправляем основной пост в канал ---
         print("\nОтправка основного поста в канал...")
