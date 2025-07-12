@@ -1,0 +1,14 @@
+Перечень файлов в папке downloads/5438-gladiator-2-2024/:
+    1735167819_1173f88e77.jpg
+    1735167819_bcff820dbf.jpg
+    1735167819_dee9084d9d.jpg
+    des.txt
+    Gladiator.2.2024.DUB.MVO.WEB-DLRip.x264.seleZen_54386_31.size.3.00Gb.torrent
+    Gladiator.II.2024.2160p.SDR_543810_20.size.17.13Gb.torrent
+    Gladiator.II.2024.D.AMZN.WEB-DLRip.1.46Gb.MegaP_54380_3.size.1.46Gb.torrent
+    Gladiator.II.2024.D.AMZN.WEB-DLRip.2.18Gb.MegaP_54384_22.size.2.18Gb.torrent
+    Gladiator_II_2024_WEB-DL_1080p_ot_New-Team_54389_71.size.10.55Gb.torrent
+    info.txt
+    poster.jpg
+
+Обрати внимание, что данные info.txt нужно прикреплять к посту, а данные из des.txt нужно использовать для создания комментриев. Основные функции работают, кроме создания комментариев и данных файла des.txt. Эту ошибку нужно исправить.

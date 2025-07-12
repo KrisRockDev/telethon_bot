@@ -1,56 +1,57 @@
 import asyncio
+import os
 from telethon.tl.types import PeerChannel
 from telegram_client import client
 from config import GRUP_ID, CHANNEL_ID
-import os
 
 
 async def _find_discussion_post_id(channel_post):
-    """
-    Находит ID пересланного из канала сообщения в группе для обсуждений.
+    # Находит ID пересланного из канала сообщения в группе для обсуждений.
+    # :param channel_post: Объект сообщения, опубликованного в канале.
+    # :return: ID сообщения в группе для комментариев или `None`, если не найдено.
 
-    :param channel_post: Объект сообщения, опубликованного в канале.
-    :return: ID сообщения в группе для комментариев или `None`, если не найдено.
-    """
-    print("\nОжидание пересылки поста в группу (5 секунд)...")
-    await asyncio.sleep(5)
+    print("...Идет поиск поста в группе для комментирования...")
 
-    try:
-        channel_entity = await client.get_entity(CHANNEL_ID)
+    for attempt in range(3):
+        try:
+            channel_entity = await client.get_entity(CHANNEL_ID)
 
-        async for message in client.iter_messages(GRUP_ID, limit=20):
-            if message.fwd_from and \
-                    isinstance(message.fwd_from.from_id, PeerChannel) and \
-                    message.fwd_from.from_id.channel_id == channel_entity.id and \
-                    message.fwd_from.channel_post == channel_post.id:
-                print(f"Найден пост для комментирования. ID в группе: {message.id}")
-                return message.id
+            async for message in client.iter_messages(GRUP_ID, limit=20):
+                if message.fwd_from and \
+                        isinstance(message.fwd_from.from_id, PeerChannel) and \
+                        message.fwd_from.from_id.channel_id == channel_entity.id and \
+                        message.fwd_from.channel_post == channel_post.id:
+                    print(f"Найден пост для комментирования. ID в группе: {message.id}")
+                    return message.id
 
-        print("Ошибка: Не удалось найти пересланный пост в группе обсуждений.")
-        return None
-    except Exception as e:
-        print(f"Ошибка при поиске поста в группе: {e}")
-        return None
+            if attempt < 2:
+                print(f"Пост не найден. Попытка {attempt + 2}/3 через 5 секунд...")
+                await asyncio.sleep(5)
+
+        except Exception as e:
+            print(f"Ошибка при поиске поста в группе: {e}")
+            return None
+
+    print("Ошибка: Не удалось найти пересланный пост в группе обсуждений.")
+    return None
 
 
-async def add_comments_text(channel_post, text_comment):
-    """
-    Добавляет один текстовый комментарий к посту.
+async def add_comment_text(channel_post, text_comment):
+    # Добавляет один текстовый комментарий к посту.
+    # :param channel_post: Объект сообщения из канала.
+    # :param text_comment: Текст комментария.
 
-    :param channel_post: Объект сообщения из канала.
-    :param text_comment: Текст комментария.
-    """
-    print(f"\n--- Добавление текстового комментария ---")
+    print(f"\n--- Добавление текстового комментария (описания) ---")
     discussion_post_id = await _find_discussion_post_id(channel_post)
     if not discussion_post_id:
         return
 
     try:
-        print(f"Отправка комментария: '{text_comment}'")
         await client.send_message(
             entity=GRUP_ID,
             message=text_comment,
-            reply_to=discussion_post_id
+            reply_to=discussion_post_id,
+            parse_mode='html'
         )
         print("Текстовый комментарий успешно добавлен.")
     except Exception as e:
@@ -58,21 +59,18 @@ async def add_comments_text(channel_post, text_comment):
 
 
 async def add_comment_photos(channel_post, path_to_images):
-    """
-    Добавляет комментарий с одним или несколькими изображениями (в виде альбома).
+    # Добавляет комментарий с одним или несколькими изображениями (в виде альбома).
+    # :param channel_post: Объект сообщения из канала.
+    # :param path_to_images: Список путей к файлам изображений.
 
-    :param channel_post: Объект сообщения из канала.
-    :param path_to_images: Список путей к файлам изображений.
-    """
-    print(f"\n--- Добавление комментария с фото ---")
+    print(f"\n--- Добавление комментария со скриншотами ---")
     discussion_post_id = await _find_discussion_post_id(channel_post)
     if not discussion_post_id:
         return
 
-    # Проверяем, что все файлы существуют
     valid_paths = [p for p in path_to_images if os.path.exists(p)]
     if not valid_paths:
-        print("Ошибка: Ни один из файлов изображений не найден.")
+        print("Ошибка: Файлы изображений для комментария не найдены.")
         return
 
     try:
@@ -80,9 +78,10 @@ async def add_comment_photos(channel_post, path_to_images):
         await client.send_file(
             entity=GRUP_ID,
             file=valid_paths,
-            reply_to=discussion_post_id
+            reply_to=discussion_post_id,
+            # caption="Скриншоты"
         )
-        print("Комментарий с фото успешно добавлен.")
+        print("Комментарий со скриншотами успешно добавлен.")
     except Exception as e:
         print(f"Ошибка при добавлении комментария с фото: {e}")
 
@@ -94,7 +93,7 @@ async def add_comments_file(channel_post, file_paths):
     :param channel_post: Объект сообщения из канала.
     :param file_paths: Список путей к файлам.
     """
-    print(f"\n--- Добавление комментариев с файлами ---")
+    print(f"\n--- Добавление комментариев с торрент-файлами ---")
     discussion_post_id = await _find_discussion_post_id(channel_post)
     if not discussion_post_id:
         return
@@ -105,13 +104,15 @@ async def add_comments_file(channel_post, file_paths):
             continue
 
         try:
-            print(f"Отправка файла: {os.path.basename(file_path)}...")
+            file_name = os.path.basename(file_path)
+            print(f"Отправка файла: {file_name}...")
             await client.send_file(
                 entity=GRUP_ID,
                 file=file_path,
+                caption="Размер: " + file_name.split("size.")[1].split("Gb")[0] + "Gb",
                 reply_to=discussion_post_id
             )
-            print(f"Файл {os.path.basename(file_path)} успешно отправлен.")
-            await asyncio.sleep(1)  # Небольшая пауза между файлами
+            print(f"Файл {file_name} успешно отправлен.")
+            await asyncio.sleep(1)
         except Exception as e:
             print(f"Ошибка при отправке файла {file_path}: {e}")
