@@ -35,5 +35,4 @@ downloads/
 info.md
 prompt.md
 description.md
-prompt_finish.txt
-prompt_start.txt
+*.txt
